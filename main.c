@@ -4,6 +4,12 @@
 #include <conio.h>
 #include <locale.h>
 
+#ifdef WIN32
+    #define LIMPA_TELA system("cls")
+#else
+    #define LIMPA_TELA system("clear")
+#endif
+
 typedef struct carro CARRO;
 
 struct carro {
@@ -82,24 +88,35 @@ void cabecalho() {
 void inputCarro() {
     cabecalho();
     FILE *arquivo;
+    FILE *arquivo2;
+
     PESSOA person;
     arquivo = fopen("banco.txt", "ab");
-    int count = 1;
-    int veiculoId = 1;
-    
+
     if(arquivo == NULL) {
         printf("PROBLEMAS COM BANCO DE DADOS");
     }
-
     else {
+        int count = 0;
+        int veiculoId = 0;
+
+        arquivo2 = fopen("banco.txt", "rb");
+
+        if(arquivo2 == NULL) {
+            printf("PROBLEMAS AO CARREGAR O BANCO DE DADOS");
+        }
+        
+        while (fread(&person, sizeof(PESSOA), 1, arquivo2) == 1) { 
+            count = person.Id;
+            veiculoId = person.car.idCarro;
+        }
+
+        if(count == NULL || count == 0 || veiculoId == NULL || veiculoId == 0){
+            count = 0;
+            veiculoId = 0;
+        }
+
         do {
-            /*fflush(stdin);
-            printf("digite o nome: ");
-            gets(person.Nome);*/
-            //scanf("%[^\n]", person.Nome);
-            
-            //printf("Nome porra: %s", person.Nome);
-            
             fflush(stdin);
             printf("digite o nome completo: ");
             gets(person.Sobrenome);
@@ -115,13 +132,13 @@ void inputCarro() {
             fflush(stdin);
             printf("digite o endereço: ");
             gets(person.Endereco);
-            
+
             //atribuindo Id auto increment;
-            person.Id = count;
+            person.Id = count + 1;
             printf("\nInforme os dados do veiculo\n");
 
             //atribuindo Id auto increment ao veiculo;
-            person.car.idCarro = veiculoId;
+            person.car.idCarro = veiculoId + 1;
 
             fflush(stdin);
             printf("digite a placa: ");
@@ -131,7 +148,6 @@ void inputCarro() {
             printf("digite o ano do veiculo: ");
             //gets(person.car.placa);
             scanf("%d", &person.car.ano);
-
 
             fflush(stdin);
             printf("digite a marca: ");
@@ -148,7 +164,7 @@ void inputCarro() {
             fflush(stdin);
             printf("digite a renach: ");
             gets(person.car.renach);
-            
+
             fflush(stdin);
             printf("digite a renavan: ");
             gets(person.car.renavan);
@@ -161,14 +177,12 @@ void inputCarro() {
             printf("digite a cor predonimante do veiculo: ");
             gets(person.car.cor);
 
-            count++;
-            veiculoId++;
-
             fwrite(&person, sizeof(PESSOA), 1, arquivo);
 
             printf("deseja continuar?(s/n)");
 
-        } while (getche() == "s");
+            } while (getche() == "s");
+        
         fclose(arquivo);
     }
 }
@@ -184,11 +198,13 @@ void listar(){
     else {
         while (fread(&person, sizeof(PESSOA), 1, arquivo) == 1) {
             printf("Dados do proprietário\n\n");
+            printf("Id: %d\n", person.Id);
             printf("Nome: %s\n", person.Sobrenome);
             printf("Cpf: %s\n", person.Cpf);
             printf("Data de nascimento: %s\n", person.dataNascimento);
             printf("Endereço: %s\n", person.Endereco);
             printf("\nDados do veiculo\n\n");
+            printf("Id do Veiculo: %d\n", person.car.idCarro);
             printf("Placa: %s\n", person.car.placa);
             printf("Marca: %s\n", person.car.marca);
             printf("Ano do veiculo: %d\n", person.car.ano);
@@ -204,32 +220,3 @@ void listar(){
     fclose(arquivo);
     getch();
 };
-/* 
-
-struc data {
-    int dia, mes, ano
-}
-struct contato {
-    char nome[30], 
-    fone[15];
-    DATA aniv;
-}
-
-{
-    int idCarro;
-    int ano, modelo;
-    char marca[100];
-    char renach[100];
-    char placa[100];
-}
-
-{
-    int Id;
-    char Idade;
-    char Nome[100];
-    char Sobrenome[100];
-    char Cpf[20];
-    char Endereco[100];
-    CARRO car;
-}
-*/
